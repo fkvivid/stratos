@@ -214,18 +214,16 @@ content: easy/animated titles save the most, grainy/complex titles save least.
 
 ---
 
-## What's intentionally *not* here
+## Current project scope
 
-Deferred on purpose — they'd make a great Part 2:
+This repository currently focuses on a complete single-node per-title VOD workflow:
 
-- **Cloud/object storage ingestion** — uploads are local-disk only right now (`./uploads`), no S3 ingest path implemented yet.
-- **Kubernetes Jobs** — parallelism is in-process threads today; the next step is one
-  container `Job` per encode cell.
-- **Multi-clip sampling** — a single 30 s clip from the middle; production samples several
-  regions and averages.
-- **Per-shot encoding** — Netflix's modern stack picks ladders *per scene*; this is per-title.
-- **Auth, persistence across restarts, garbage collection** — this is a portfolio project,
-  not a SaaS.
+- Browser upload (`multipart/form-data`) to local storage (`./uploads`)
+- Probe + multi-bitrate VMAF analysis per resolution tier
+- Per-title ladder selection (lowest bitrate per tier that meets target VMAF)
+- Parallel HLS encoding with live per-rendition progress over SSE
+- Interactive player + rate-quality chart + per-title vs fixed-ladder report
+- Homepage history of previous jobs
 
 ---
 
