@@ -218,7 +218,7 @@ content: easy/animated titles save the most, grainy/complex titles save least.
 
 Deferred on purpose — they'd make a great Part 2:
 
-- **S3 / object storage** — output goes to local disk; swapping in S3 is one module.
+- **Cloud/object storage ingestion** — uploads are local-disk only right now (`./uploads`), no S3 ingest path implemented yet.
 - **Kubernetes Jobs** — parallelism is in-process threads today; the next step is one
   container `Job` per encode cell.
 - **Multi-clip sampling** — a single 30 s clip from the middle; production samples several
@@ -234,7 +234,6 @@ Deferred on purpose — they'd make a great Part 2:
 - [ ] Multi-clip sampling for more representative VMAF
 - [ ] Persist jobs across restarts (currently in-memory)
 - [ ] Kubernetes Jobs as the parallelism primitive (one Job per cell)
-- [ ] S3 + presigned multipart uploads
 - [ ] CLI mode (`stratos encode video.mp4 --out ./out/`)
 
 ---
@@ -245,6 +244,7 @@ Deferred on purpose — they'd make a great Part 2:
 - Netflix Tech Blog — [Optimized shot-based encodes](https://netflixtechblog.com/optimized-shot-based-encodes-now-streaming-4b9464204830) (2018)
 - VMAF — [GitHub](https://github.com/Netflix/vmaf) · [paper](https://arxiv.org/abs/1907.07999)
 - HLS spec — [RFC 8216](https://datatracker.ietf.org/doc/html/rfc8216)
+- Video systems learning resource — [howvideo.works](https://howvideo.works/)
 
 ---
 
