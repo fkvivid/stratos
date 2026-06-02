@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stratos — Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a href="/" class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="2" y="4" width="20" height="16" rx="3" stroke="#5b9cff" stroke-width="1.5"/>
+        <path d="M10 9l5 3-5 3V9z" fill="#5b9cff"/>
+      </svg>
+      Stratos
+    </a>
+    <span class="job-id" id="jobId"></span>
+    <span class="badge" id="badge"><span class="badge__dot"></span>Connecting</span>
+  </header>
+
+  <main class="container container--wide">
+    <div class="player-layout">
+      <div class="player-main">
+        <div>
+          <p class="panel__title" style="margin-bottom:8px;text-transform:none;font-size:15px;color:var(--text)" id="jobFilename">—</p>
+          <div id="playerRoot"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__title">Pipeline</div>
+          <div class="pipeline-steps" id="pipelineSteps"></div>
+        </div>
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:20px">
+        <div class="panel">
+          <div class="panel__title">Rate–quality</div>
+          <svg class="chart" id="chart" role="img" aria-label="VMAF vs bitrate chart"></svg>
+          <p class="panel__hint">
+            Dots: every sampled bitrate · Green: Pareto frontier · Blue: chosen per-title rung per resolution
+          </p>
+        </div>
+
+        <div class="panel" id="ladderPanel" hidden>
+          <div class="panel__title">Chosen ladder</div>
+          <div class="ladder-list" id="ladder"></div>
+        </div>
+
+      </aside>
+    </div>
+
+    <div id="insightsHost" hidden style="margin-top:24px"></div>
+  </main>
+
+  <script type="module">
+    import { StratosPlayer } from "/assets/js/hls-player.js";
+    import { renderEncodingPanel, renderEncodeProgress } from "/assets/js/encoding-panel.js";
+    import { mountInsights } from "/assets/js/insights-panel.js";
+    import { createJobMonitor, initPipelineSteps } from "/assets/js/job-monitor.js";
+
+    const params = new URLSearchParams(location.search);
+    const jobId = params.get("job");
+
+    if (!jobId) {
+      location.href = "/";
+      throw new Error("missing job");
+    }
+
+    document.getElementById("jobId").textContent = jobId;
+    initPipelineSteps();
+
+    const playerRoot = document.getElementById("playerRoot");
+    let player = null;
+
+    renderEncodingPanel(playerRoot, "Uploaded");
+
+    async function waitForManifest(url, maxAttempts = 120) {
+      for (let i = 0; i < maxAttempts; i++) {
+        try {
+          const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+          if (res.ok) return;
+        } catch (_) {}
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      throw new Error("manifest not ready");
+    }
+
+    async function mountPlayer() {
+      if (player) return;
+      const src = `/stream/${jobId}/master.m3u8`;
+      try {
+        await waitForManifest(src);
+      } catch {
+        renderEncodingPanel(playerRoot, "Encoding", "Waiting for HLS…");
+        setTimeout(() => mountPlayer(), 2000);
+        return;
+      }
+      playerRoot.innerHTML = "";
+      player = new StratosPlayer(playerRoot, src);
+      player.load();
+    }
+
+    let ladder = [];
+    const encodeProgress = {};
+
+    createJobMonitor({
+      jobId,
+      onLadder: (l) => {
+        ladder = l || [];
+      },
+      onStatus: (status) => {
+        if (status === "Done" || player) return;
+        if (status === "Encoding") {
+          renderEncodeProgress(playerRoot, ladder, encodeProgress);
+        } else {
+          renderEncodingPanel(playerRoot, status);
+        }
+      },
+      onEncodeProgress: (rendition, percent) => {
+        if (player) return;
+        encodeProgress[rendition] = percent;
+        renderEncodeProgress(playerRoot, ladder, encodeProgress);
+      },
+      onInsights: mountInsights,
+      onDone: mountPlayer,
+    });
+
+    document.getElementById("ladder")?.addEventListener("click", (e) => {
+      const item = e.target.closest("[data-rendition]");
+      if (!item || !player?.hls) return;
+      const name = item.dataset.rendition;
+      const level = player.levels.find((l) => l.name === name);
+      if (level) player.setQuality(level.index);
+    });
+  </script>
+</body>
+</html>

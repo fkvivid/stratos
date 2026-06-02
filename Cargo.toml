@@ -1,6 +1,40 @@
 [package]
 name = "stratos"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
+# Web framework
+axum = { version = "0.7", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
+
+# Async streaming (we'll need this for SSE later)
+async-stream = "0.3"
+futures = "0.3"
+tokio-stream = { version = "0.1", features = ["sync"] }
+
+# Parallel encoding — the core of the project
+rayon = "1.10"
+
+# Shared mutable state
+dashmap = "6"
+
+# Job IDs
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# JSON serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Logging (helps you see what's happening)
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Regex for parsing ffmpeg output
+regex = "1"
+once_cell = "1"

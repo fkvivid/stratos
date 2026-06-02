@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Stratos — per-title video encoding with VMAF-driven adaptive ladders">
+  <title>Stratos — Per-Title Encoding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <a href="/" class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="2" y="4" width="20" height="16" rx="3" stroke="#5b9cff" stroke-width="1.5"/>
+        <path d="M10 9l5 3-5 3V9z" fill="#5b9cff"/>
+      </svg>
+      Stratos
+    </a>
+    <span class="badge">Per-title ABR</span>
+  </header>
+
+  <main class="container container--narrow">
+    <section class="hero">
+      <h1>Encode smarter, stream smaller</h1>
+      <p>
+        Upload a title and Stratos probes, samples the rate–quality curve with VMAF,
+        picks a Pareto-optimal ladder, and ships HLS with manual quality switching.
+      </p>
+    </section>
+
+    <div class="dropzone" id="dropzone">
+      <svg class="dropzone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+      </svg>
+      <h2>Drop your video here</h2>
+      <p>MP4, MOV, MKV — or <button type="button" class="btn btn--ghost" id="pickBtn" style="padding:0;border:none;background:none;color:var(--accent);font-size:inherit">browse files</button></p>
+      <p class="dropzone__meta" id="fileMeta"></p>
+      <input type="file" id="fileInput" accept="video/*" hidden />
+    </div>
+
+    <div class="upload-status" id="status">
+      <p id="statusText">Uploading…</p>
+      <div class="progress" id="progressWrap"><div class="progress__bar" id="bar"></div></div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <strong>Rate–quality search</strong>
+        <span>Several bitrates per resolution, each scored with VMAF</span>
+      </div>
+      <div class="feature">
+        <strong>Per-title ladder</strong>
+        <span>Lowest bitrate per tier that clears the VMAF target</span>
+      </div>
+      <div class="feature">
+        <strong>Savings report</strong>
+        <span>Bandwidth vs a fixed ladder, per rendition</span>
+      </div>
+    </div>
+
+    <section id="history" class="history" hidden>
+      <div class="history__head">
+        <h2>Recent encodes</h2>
+        <span class="panel__hint">Live · click to open the player &amp; report</span>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/assets/js/upload.js"></script>
+  <script type="module">
+    import { initHistory } from "/assets/js/history.js";
+    initHistory();
+  </script>
+</body>
+</html>
