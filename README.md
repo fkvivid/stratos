@@ -16,6 +16,20 @@ cargo run
 # → open http://localhost:8080
 ```
 
+## Screenshots
+
+**Rate–quality analysis** — every sampled bitrate (gray), Pareto frontier (green), and the chosen per-title rung per resolution (blue).
+
+![Rate–quality chart](docs/screenshots/rate-quality.png)
+
+**Chosen ladder** — four HLS renditions with VMAF-measured quality; click a rung to switch the player.
+
+![Chosen ladder](docs/screenshots/chosen-ladder.png)
+
+**Per-title vs fixed ladder** — bandwidth saved, delivery size, per-rendition bitrate delta, and trade-offs vs a traditional fixed ABR preset.
+
+![Per-title insights](docs/screenshots/insights.png)
+
 ---
 
 ## What it does
